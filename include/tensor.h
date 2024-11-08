@@ -115,4 +115,10 @@ Tensor matmul(const Tensor &a, const Tensor &b);
 float inner(const Tensor &a, const Tensor &b);
 Tensor outer(const Tensor &a, const Tensor &b);
 void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t);
+
+// convolution
+// t: (N, C, H, W)
+// ker: (9, C, K)
+// out: (N, K, H, W)
+void conv2d_3x3(const Tensor &t, const Tensor &ker, Tensor out);
 } // namespace ten
