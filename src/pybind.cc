@@ -43,4 +43,5 @@ PYBIND11_MODULE(pytensor, m) {
     m.def("inner", &ten::inner);
     m.def("outer", &ten::outer);
     m.def("outer_update", &ten::outer_update);
+    m.def("conv2d_3x3", &ten::conv2d_3x3);
 }
