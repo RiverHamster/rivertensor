@@ -1,9 +1,14 @@
 import pytensor as pt
 import numpy as np
 import scipy
+import random
 
+np.random.seed(0)
+random.seed(0)
 
 def T(N, C, H, W, K, output=False):
+    # image = np.arange(1, N * C * H * W + 1).reshape(N, C, H, W).astype('float32')
+    # fil = np.arange(1, 9 * C * K + 1).reshape(9, C, K).astype('float32')
     image = np.random.randn(N, C, H, W).astype('float32')
     fil = np.random.randn(9, C, K).astype('float32')
     if output:
@@ -26,9 +31,15 @@ def T(N, C, H, W, K, output=False):
     if output:
         print("res\n", res)
         print("res_sp\n", res_sp)
-    assert np.max(res - res_sp) < 1e-2
+    assert np.max(np.abs(res - res_sp)) < 1e-2
 
 def test_conv2d():
     for w in range(1, 25):
         T(1, 1, w, w, 1)
-    T(4, 15, 31, 45, 125)
+    for t in range(50):
+        N = random.randint(1, 4)
+        H = random.randint(1, 32)
+        W = random.randint(1, 32)
+        C = random.randint(1, 24)
+        K = random.randint(1, 96)
+        T(N, C, H, W, K)
