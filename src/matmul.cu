@@ -120,9 +120,7 @@ Tensor outer(const Tensor &x, const Tensor &y) {
 }
 
 float inner(const Tensor &a, const Tensor &b) {
-    assert(a.ndim() == 1);
-    assert(b.ndim() == 1);
-    assert(a.size() == b.size());
+    assert(a.shape() == b.shape());
     return thrust::inner_product(thrust::device, a.data(), a.data() + a.size(), b.data(), 0.0f);
 }
 } // namespace ten
