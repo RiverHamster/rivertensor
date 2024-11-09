@@ -24,3 +24,5 @@
             exit(EXIT_FAILURE);                                                \
         }                                                                      \
     } while (0)
+
+#define KERNEL static __global__ void

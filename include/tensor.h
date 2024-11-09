@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
-#include <vector>
 #include <memory>
+#include <vector>
 
 using std::size_t;
 
@@ -82,6 +82,9 @@ Tensor matmul(const Tensor &a, const Tensor &b);
 #define DEC_MAP_OPT(name) Tensor name(const Tensor &x);
 #define DEC_BINARY_OPT(name, arg1, arg2)                                       \
     Tensor name(const Tensor &arg1, const Tensor &arg2);
+#define DEC_COMM_SCALAR_OPT(name)                                              \
+    Tensor name(const Tensor &x, float y);                                     \
+    Tensor name(float x, const Tensor &y);
 
 // we do not implement expression templates. Implement more fused operators!
 DEC_MAP_OPT(relu)
@@ -98,6 +101,8 @@ DEC_BINARY_OPT(operator+, x, y)
 DEC_BINARY_OPT(operator-, x, y)
 DEC_BINARY_OPT(operator*, x, y)
 DEC_BINARY_OPT(operator/, x, y)
+DEC_COMM_SCALAR_OPT(operator+)
+DEC_COMM_SCALAR_OPT(operator*)
 
 Tensor zeros(const shape_t &);
 Tensor ones(const shape_t &);
@@ -121,4 +126,6 @@ void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t);
 // ker: (9, C, K)
 // out: (N, K, H, W)
 void conv2d_3x3(const Tensor &t, const Tensor &ker, Tensor out);
+void conv2d_3x3_grad_x(const Tensor &y, const Tensor &ker, Tensor dx);
+void conv2d_3x3_grad_k(const Tensor &y, const Tensor &ker, Tensor dk);
 } // namespace ten

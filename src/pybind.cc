@@ -17,7 +17,11 @@ PYBIND11_MODULE(pytensor, m) {
         .def(py::self + py::self)
         .def(py::self - py::self)
         .def(py::self * py::self)
-        .def(py::self / py::self);
+        .def(py::self / py::self)
+        .def(py::self + float())
+        .def(float() + py::self)
+        .def(py::self * float())
+        .def(float() * py::self);
     py::enum_<TensorDevice>(m, "TensorDevice")
         .value("cpu", TensorDevice::cpu)
         .value("gpu", TensorDevice::gpu);
@@ -44,4 +48,5 @@ PYBIND11_MODULE(pytensor, m) {
     m.def("outer", &ten::outer);
     m.def("outer_update", &ten::outer_update);
     m.def("conv2d_3x3", &ten::conv2d_3x3);
+    m.def("conv2d_3x3_grad_x", &ten::conv2d_3x3_grad_x);
 }

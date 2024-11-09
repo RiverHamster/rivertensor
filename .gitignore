@@ -4,4 +4,4 @@ build
 extern
 __pycache__
 .pytest_cache
-output.txt
+*.log
