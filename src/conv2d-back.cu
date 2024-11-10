@@ -84,7 +84,7 @@ KERNEL conv2d_3x3_dx_ker(const float *y, const float *ker, float *dx, int C,
             if (off_k + k < K && off_h + h < H && off_w + w < W)
                 atomicAdd(
                     &dx[(off_k + k) * H * W + (off_h + h) * W + off_w + w],
-                    sum);//, printf("update [%d, %d, %d]: %f\n", k, h, w, sum);
+                    sum);
         }
     }
 }
@@ -110,6 +110,5 @@ void conv2d_3x3_grad_x(const Tensor &y, const Tensor &ker, Tensor dx) {
     conv2d_3x3_dx_ker<CBLK, HBLK, WBLK, KBLK>
         <<<grid, block>>>(y.data(), ker.data(), dx.data(), K, nblkC, H, nblkH,
                           W, nblkW, C, nblkK);
-    cudaDeviceSynchronize();
 }
 } // namespace ten
