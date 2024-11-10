@@ -7,8 +7,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <cuda_runtime.h>
-#include <vector>
 #include <memory>
+#include <vector>
 
 using std::intptr_t;
 using std::size_t;
@@ -33,8 +33,9 @@ Buffer::Buffer(ssize_t nelem, TensorDevice dev) : dev(dev) {
     if (dev == TensorDevice::cpu) {
         cudaMallocHost(&data, nbytes);
     } else {
-        // printf("GPU Buffer of %.6lf MB allocated\n", 4.0 * nelem / 1e6);
         cudaMalloc(&data, nbytes);
+        // printf("GPU Buffer of %.6lf MB (%zd elems) allocated: %p\n",
+        //        4.0 * nelem / 1e6, nelem, data);
     }
 }
 Buffer::Buffer(Buffer &&r) {
@@ -48,7 +49,7 @@ void Buffer::free() {
     if (dev == TensorDevice::cpu) {
         cudaFreeHost(data);
     } else {
-        // printf("GPU Buffer freed\n");
+        // printf("GPU Buffer %p freed\n", data);
         cudaFree(data);
     }
 }
@@ -59,7 +60,8 @@ Buffer &Buffer::operator=(const Buffer &&r) {
     return *this;
 }
 
-Tensor::Tensor() : _size(0), _shape({0}), _stride({1}), _buf(std::make_shared<Buffer>()) {}
+Tensor::Tensor()
+    : _size(0), _shape({0}), _stride({1}), _buf(std::make_shared<Buffer>()) {}
 Tensor::Tensor(const shape_t &s, TensorDevice d)
     : _shape(s), _stride(s.size()) {
     assert(s.size() > 0);

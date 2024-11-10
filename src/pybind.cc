@@ -51,4 +51,5 @@ PYBIND11_MODULE(pytensor, m) {
     m.def("outer_update", &ten::outer_update);
     m.def("conv2d_3x3", &ten::conv2d_3x3);
     m.def("conv2d_3x3_grad_x", &ten::conv2d_3x3_grad_x);
+    m.def("conv2d_3x3_grad_k", &ten::conv2d_3x3_grad_k);
 }

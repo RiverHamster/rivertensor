@@ -43,21 +43,51 @@ def T_c2d_dx(C, H, W, K, output=False):
         print(f"ker: {ker.numpy()}")
     eps = 1e-3
     delta = pt.randn([1, C, H, W]) * eps
-    coeff = pt.randn([1, K, H, W])
+    coeff = pt.randn([K, H, W])
     if output:
         print(f"coeff: {coeff.numpy()}")
     y = pt.zeros([1, K, H, W])
     y1 = y.copy()
     pt.conv2d_3x3(x, ker, y)
     pt.conv2d_3x3(x + delta, ker, y1)
-    dY = (pt.inner(y1, coeff) - pt.inner(y, coeff))
-    gradX = pt.zeros([1, C, H, W])
+    Y = pt.inner(y, coeff.newaxis(0))
+    Y1 = pt.inner(y1, coeff.newaxis(0))
+    dY = Y1 - Y
+    gradX = pt.zeros([C, H, W])
     pt.conv2d_3x3_grad_x(coeff, ker, gradX)
     if output:
         print(f"gradX: {gradX.numpy()}")
-    dY_pred = pt.inner(delta, gradX)
-    print(f"Y = {pt.inner(y, coeff)}, dY = {dY}, dY_pred = {dY_pred}")
-    assert np.abs(dY_pred - dY) / eps < 1
+    dY_pred = pt.inner(delta, gradX.newaxis(0))
+    print(f"Y = {Y}, dY = {dY}, dY_pred = {dY_pred}")
+    # compare with relative err
+    assert np.abs(dY_pred - dY) / np.max(np.abs([Y, Y1, dY])) / eps < 1
+
+def T_c2d_dk(C, H, W, K, output=False):
+    print(f"T_c2d_dx {C} {H} {W} {K}")
+    x = pt.randn([1, C, H, W])
+    if output: 
+        print(f"x: {x.numpy()}")
+    ker = pt.randn([9, C, K])
+    if output:
+        print(f"ker: {ker.numpy()}")
+    eps = 1e-3
+    delta = pt.randn([9, C, K]) * eps
+    coeff = pt.randn([K, H, W])
+    if output:
+        print(f"coeff: {coeff.numpy()}")
+    y = pt.zeros([1, K, H, W])
+    y1 = y.copy()
+    pt.conv2d_3x3(x, ker, y)
+    pt.conv2d_3x3(x, ker + delta, y1)
+    Y = pt.inner(y, coeff.newaxis(0))
+    Y1 = pt.inner(y1, coeff.newaxis(0))
+    dY = Y1 - Y
+    gradK = pt.zeros([9, C, K])
+    pt.conv2d_3x3_grad_k(coeff, x.reshape([C, H, W]), gradK)
+    dY_pred = pt.inner(delta, gradK)
+    print(f"Y = {Y}, dY = {dY}, dY_pred = {dY_pred}")
+    # compare with relative err
+    assert np.abs(dY_pred - dY) / np.max(np.abs([Y, Y1, dY])) / eps < 1
 
 def test_conv2d():
     for w in range(1, 25):
@@ -73,11 +103,22 @@ def test_conv2d():
 def test_conv2d_grad_x():
     for w in range(1, 25):
         T_c2d_dx(1, w, w, 1)
-    for i in range(20):
+    for i in range(200):
         C = random.randint(1, 16)
         H = random.randint(1, 32)
         W = random.randint(1, 32)
         K = random.randint(1, 128)
         T_c2d_dx(C, H, W, K)
 
-# test_conv2d_grad_x()
+def test_conv2d_grad_k():
+    for w in range(1, 25):
+        T_c2d_dx(1, w, w, 1)
+    for i in range(200):
+        C = random.randint(1, 16)
+        H = random.randint(1, 32)
+        W = random.randint(1, 32)
+        K = random.randint(1, 128)
+        T_c2d_dx(C, H, W, K)
+    # T_c2d_dk(1, 1, 1, 1, True)
+
+test_conv2d_grad_k()

@@ -4,8 +4,6 @@
 #include <cassert>
 #include <cstdio>
 
-#define KERNEL __global__ void
-
 namespace ten {
 // we assume KBLK is a multiple of 4
 template <ssize_t CBLK, ssize_t HBLK, ssize_t WBLK, ssize_t KBLK>
@@ -78,7 +76,7 @@ KERNEL conv2d_3x3_ker(const float *in, const float *ker, float *out, int C,
                 sum += col[pos][m] * t_ker[m][k];
             }
             // use atomicAdd, optimize to reduction when necessary
-            if (k < K && off_h + h < H && off_w + w < W)
+            if (off_k + k < K && off_h + h < H && off_w + w < W)
                 atomicAdd(
                     &out[(off_k + k) * H * W + (off_h + h) * W + off_w + w],
                     sum);

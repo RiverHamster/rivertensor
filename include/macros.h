@@ -20,7 +20,8 @@
 #define blasChkerr(x)                                                          \
     do {                                                                       \
         if ((x) != CUBLAS_STATUS_SUCCESS) {                                    \
-            printf("Error (%d) at %s:%d\n", (int)x, __FILE__, __LINE__);       \
+            printf("Error (%d) %s at %s:%d\n", (int)x,                         \
+                   cublasGetStatusString(x), __FILE__, __LINE__);              \
             exit(EXIT_FAILURE);                                                \
         }                                                                      \
     } while (0)
