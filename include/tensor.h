@@ -75,6 +75,10 @@ class Tensor {
     float at(const std::vector<ssize_t> &idx) const;
     // set single element
     void set(const std::vector<ssize_t> &idx, float val);
+    // add an unit dimension before axis i (non-copy)
+    Tensor newaxis(ssize_t axis) const;
+    // change dimensions without affecting size (non-copy)
+    Tensor reshape(shape_t shape) const;
 };
 
 Tensor matmul(const Tensor &a, const Tensor &b);

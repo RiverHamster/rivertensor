@@ -121,4 +121,25 @@ void Tensor::set(const std::vector<ssize_t> &idx, float val) {
     cudaMemcpy(ptr, &val, sizeof(float), cudaMemcpyHostToDevice);
 }
 
+Tensor Tensor::reshape(shape_t shape) const {
+    ssize_t prod = 1;
+    shape_t strides(shape.size());
+    for (ssize_t i = shape.size() - 1; i != -1; --i) {
+        strides[i] = prod;
+        prod *= shape[i];
+    }
+    assert(prod == size());
+    Tensor r = *this;
+    r._shape = shape;
+    r._stride = strides;
+    return r;
+}
+
+Tensor Tensor::newaxis(ssize_t axis) const {
+    assert(0 <= axis && axis <= size());
+    Tensor r = *this;
+    r._shape.insert(r._shape.begin() + axis, 1);
+    r.reshape(r._shape);
+    return r;
+}
 } // namespace ten

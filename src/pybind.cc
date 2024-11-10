@@ -13,6 +13,8 @@ PYBIND11_MODULE(pytensor, m) {
         .def("copy_to", &Tensor::copy_to)
         .def("at", &Tensor::at)
         .def("set", &Tensor::set)
+        .def("newaxis", &Tensor::newaxis)
+        .def("reshape", &Tensor::reshape)
         .def("numpy", [](const Tensor &t) { return pyten::numpy(t); })
         .def(py::self + py::self)
         .def(py::self - py::self)
