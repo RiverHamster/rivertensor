@@ -49,7 +49,7 @@ KERNEL conv2d_3x3_dx_ker(const float *y, const float *ker, float *dx, int C,
         for (int c = 0; c < CBLK; ++c) {
             if (off_c + c < C && off_k + k < K)
                 t_ker[c * 9 + (8 - phase)][k] =
-                    ker[phase * K * C + (off_k + k) * C + off_c + c];//, printf("t_ker[%d][%d] = %f index %d\n", c * 9 + (8 - phase), k, t_ker[c * 9 + (8 - phase)][k], phase * K * C + (off_k + k) * C + off_c + c);
+                    ker[phase * K * C + (off_k + k) * C + off_c + c];
             else
                 t_ker[c * 9 + (8 - phase)][k] = 0.0;
         }
@@ -64,7 +64,6 @@ KERNEL conv2d_3x3_dx_ker(const float *y, const float *ker, float *dx, int C,
         int h = _quot / WBLK, w = _quot % WBLK;
         for (int c = 0; c < CBLK; ++c) {
             col[_quot][c * 9 + phase] = t_in[c][h + phase_h][w + phase_w];
-            // printf("col[%d][%d] = %f\n", _quot, c * 9 + phase, col[_quot][c * 9 + phase]);
         }
     }
 
