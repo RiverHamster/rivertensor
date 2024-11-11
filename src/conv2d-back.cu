@@ -21,7 +21,8 @@ KERNEL conv2d_3x3_dx_ker(const float *y, const float *ker, float *dx, int C,
     batch /= nblkC;
     int off_h = blockIdx.y * HBLK, off_w = blockIdx.z * WBLK;
     int tid = threadIdx.x;
-    // BACK PASS: no batch size
+    y += (ssize_t)batch * C * H * W;
+    dx += (ssize_t)batch * K * H * W;
 
     // load data
     // 256 threads
@@ -91,20 +92,20 @@ KERNEL conv2d_3x3_dx_ker(const float *y, const float *ker, float *dx, int C,
 
 void conv2d_3x3_grad_x(const Tensor &dy, const Tensor &ker, Tensor dx) {
     constexpr int CBLK = 4, HBLK = 6, WBLK = 6, KBLK = 32;
-    assert(dy.ndim() == 3);
-    assert(dx.ndim() == 3);
+    assert(dy.ndim() == 4);
+    assert(dx.ndim() == 4);
     assert(ker.ndim() == 3);
-    ssize_t K = dy.shape()[0], H = dy.shape()[1], W = dy.shape()[2],
+    ssize_t N = dy.shape()[0], K = dy.shape()[1], H = dy.shape()[2], W = dy.shape()[3],
             C = ker.shape()[1];
     assert(ker.shape() == (shape_t{9, C, K}));
-    assert(dx.shape() == (shape_t{C, H, W}));
+    assert(dx.shape() == (shape_t{N, C, H, W}));
 
     // BACK PASS: exchange C, K
     ssize_t nblkC = (K + CBLK - 1) / CBLK;
     ssize_t nblkH = (H + HBLK - 1) / HBLK;
     ssize_t nblkW = (W + WBLK - 1) / WBLK;
     ssize_t nblkK = (C + KBLK - 1) / KBLK;
-    dim3 grid{unsigned(nblkC * nblkK), (unsigned)nblkH, (unsigned)nblkW};
+    dim3 grid{unsigned(N * nblkC * nblkK), (unsigned)nblkH, (unsigned)nblkW};
     ssize_t block = 324;
     cudaMemsetAsync(dx.data(), 0, sizeof(float) * dx.size());
     conv2d_3x3_dx_ker<CBLK, HBLK, WBLK, KBLK>
@@ -112,11 +113,6 @@ void conv2d_3x3_grad_x(const Tensor &dy, const Tensor &ker, Tensor dx) {
                           W, nblkW, C, nblkK);
 }
 
-// KERNEL conv2d_3x3_dk_ker(const float *dy, const float *x, float *dk, int C,
-//                          int nblkC, int H, int nblkH, int W, int nblkW, int K,
-//                          int nblkK) {
-    
-// }
 // we assume KBLK is a multiple of 4
 template <ssize_t CBLK, ssize_t HBLK, ssize_t WBLK, ssize_t KBLK>
 KERNEL conv2d_3x3_dk_ker(const float *x, const float *dy, float *dk, int C,
@@ -131,6 +127,8 @@ KERNEL conv2d_3x3_dk_ker(const float *x, const float *dy, float *dk, int C,
     batch /= nblkC;
     int off_h = blockIdx.y * HBLK, off_w = blockIdx.z * WBLK;
     int tid = threadIdx.x;
+    x += batch * C * H * W;
+    dy += batch * K * H * W;
 
     // load data
     // 256 threads
@@ -185,19 +183,19 @@ KERNEL conv2d_3x3_dk_ker(const float *x, const float *dy, float *dk, int C,
 }
 
 void conv2d_3x3_grad_k(const Tensor &dy, const Tensor &x, Tensor dk) {
-    assert(dy.ndim() == 3);
-    assert(x.ndim() == 3);
+    assert(dy.ndim() == 4);
+    assert(x.ndim() == 4);
     assert(dk.ndim() == 3);
-    ssize_t K = dy.shape()[0], H = dy.shape()[1], W = dy.shape()[2],
-            C = x.shape()[0];
+    ssize_t N = dy.shape()[0], K = dy.shape()[1], H = dy.shape()[2], W = dy.shape()[3],
+            C = x.shape()[1];
     assert(dk.shape() == (shape_t{9, C, K}));
-    assert(x.shape() == (shape_t{C, H, W}));
+    assert(x.shape() == (shape_t{N, C, H, W}));
     constexpr int CBLK = 4, KBLK = 8, HBLK = 6, WBLK = 6;
     int nblkC = (C + CBLK - 1) / CBLK;
     int nblkH = (H + HBLK - 1) / HBLK;
     int nblkW = (W + WBLK - 1) / WBLK;
     int nblkK = (K + KBLK - 1) / KBLK;
-    dim3 grid{unsigned(nblkC * nblkK), unsigned(nblkH), unsigned(nblkW)};
+    dim3 grid{unsigned(N * nblkC * nblkK), unsigned(nblkH), unsigned(nblkW)};
     ssize_t block = 324;
     cudaMemsetAsync(dk.data(), 0, sizeof(float) * dk.size());
     conv2d_3x3_dk_ker<CBLK, HBLK, WBLK, KBLK>

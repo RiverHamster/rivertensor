@@ -33,38 +33,38 @@ def T_c2d(N, C, H, W, K, output=False):
         print("res_sp\n", res_sp)
     assert np.max(np.abs(res - res_sp)) < 1e-2
 
-def T_c2d_dx(C, H, W, K, output=False):
+def T_c2d_dx(N, C, H, W, K, output=False):
     print(f"T_c2d_dx {C} {H} {W} {K}")
-    x = pt.randn([1, C, H, W])
+    x = pt.randn([N, C, H, W])
     if output: 
         print(f"x: {x.numpy()}")
     ker = pt.randn([9, C, K])
     if output:
         print(f"ker: {ker.numpy()}")
     eps = 1e-3
-    delta = pt.randn([1, C, H, W]) * eps
-    coeff = pt.randn([K, H, W])
+    delta = pt.randn([N, C, H, W]) * eps
+    coeff = pt.randn([N, K, H, W])
     if output:
         print(f"coeff: {coeff.numpy()}")
-    y = pt.zeros([1, K, H, W])
+    y = pt.zeros([N, K, H, W])
     y1 = y.copy()
     pt.conv2d_3x3(x, ker, y)
     pt.conv2d_3x3(x + delta, ker, y1)
-    Y = pt.inner(y, coeff.newaxis(0))
-    Y1 = pt.inner(y1, coeff.newaxis(0))
+    Y = pt.inner(y, coeff)
+    Y1 = pt.inner(y1, coeff)
     dY = Y1 - Y
-    gradX = pt.zeros([C, H, W])
+    gradX = pt.zeros([N, C, H, W])
     pt.conv2d_3x3_grad_x(coeff, ker, gradX)
     if output:
         print(f"gradX: {gradX.numpy()}")
-    dY_pred = pt.inner(delta, gradX.newaxis(0))
+    dY_pred = pt.inner(delta, gradX)
     print(f"Y = {Y}, dY = {dY}, dY_pred = {dY_pred}")
     # compare with relative err
     assert np.abs(dY_pred - dY) / np.max(np.abs([Y, Y1, dY])) / eps < 1
 
-def T_c2d_dk(C, H, W, K, output=False):
+def T_c2d_dk(N, C, H, W, K, output=False):
     print(f"T_c2d_dx {C} {H} {W} {K}")
-    x = pt.randn([1, C, H, W])
+    x = pt.randn([N, C, H, W])
     if output: 
         print(f"x: {x.numpy()}")
     ker = pt.randn([9, C, K])
@@ -72,22 +72,22 @@ def T_c2d_dk(C, H, W, K, output=False):
         print(f"ker: {ker.numpy()}")
     eps = 1e-3
     delta = pt.randn([9, C, K]) * eps
-    coeff = pt.randn([K, H, W])
+    coeff = pt.randn([N, K, H, W])
     if output:
         print(f"coeff: {coeff.numpy()}")
-    y = pt.zeros([1, K, H, W])
+    y = pt.zeros([N, K, H, W])
     y1 = y.copy()
     pt.conv2d_3x3(x, ker, y)
     pt.conv2d_3x3(x, ker + delta, y1)
-    Y = pt.inner(y, coeff.newaxis(0))
-    Y1 = pt.inner(y1, coeff.newaxis(0))
+    Y = pt.inner(y, coeff.newaxis)
+    Y1 = pt.inner(y1, coeff.newaxis)
     dY = Y1 - Y
     gradK = pt.zeros([9, C, K])
-    pt.conv2d_3x3_grad_k(coeff, x.reshape([C, H, W]), gradK)
+    pt.conv2d_3x3_grad_k(coeff, x, gradK)
     dY_pred = pt.inner(delta, gradK)
     print(f"Y = {Y}, dY = {dY}, dY_pred = {dY_pred}")
     # compare with relative err
-    assert np.abs(dY_pred - dY) / np.max(np.abs([Y, Y1, dY])) / eps < 1
+    assert np.abs(dY_pred - dY) / np.max(np.abs([Y, Y1, dY / eps])) / eps < 0.2
 
 def test_conv2d():
     for w in range(1, 25):
@@ -102,23 +102,23 @@ def test_conv2d():
 
 def test_conv2d_grad_x():
     for w in range(1, 25):
-        T_c2d_dx(1, w, w, 1)
+        T_c2d_dx(1, 1, w, w, 1)
     for i in range(200):
+        N = random.randint(1, 4)
         C = random.randint(1, 16)
         H = random.randint(1, 32)
         W = random.randint(1, 32)
         K = random.randint(1, 128)
-        T_c2d_dx(C, H, W, K)
+        T_c2d_dx(N, C, H, W, K)
 
 def test_conv2d_grad_k():
     for w in range(1, 25):
-        T_c2d_dx(1, w, w, 1)
+        T_c2d_dx(1, 1, w, w, 1)
     for i in range(200):
+        N = random.randint(1, 4)
         C = random.randint(1, 16)
         H = random.randint(1, 32)
         W = random.randint(1, 32)
         K = random.randint(1, 128)
-        T_c2d_dx(C, H, W, K)
-    # T_c2d_dk(1, 1, 1, 1, True)
+        T_c2d_dx(N, C, H, W, K)
 
-test_conv2d_grad_k()

@@ -32,9 +32,9 @@ PYBIND11_MODULE(pytensor, m) {
     m.def("rand", &ten::rand);
     m.def("randn", &ten::randn);
     m.def("relu", &ten::relu);
-    m.def("reluGrad", &ten::reluGrad);
+    m.def("relu_grad", &ten::relu_grad);
     m.def("sigmoid", &ten::sigmoid);
-    m.def("sigmoidGrad", &ten::sigmoidGrad);
+    m.def("sigmoid_grad", &ten::sigmoid_grad);
     m.def("sum", &ten::sum);
     m.def("max", &ten::max);
     m.def("min", &ten::min);
@@ -52,4 +52,9 @@ PYBIND11_MODULE(pytensor, m) {
     m.def("conv2d_3x3", &ten::conv2d_3x3);
     m.def("conv2d_3x3_grad_x", &ten::conv2d_3x3_grad_x);
     m.def("conv2d_3x3_grad_k", &ten::conv2d_3x3_grad_k);
+    m.def("maxpool2d_2x2", &ten::maxpool2d_2x2);
+    m.def("maxpool2d_2x2_grad", &ten::maxpool2d_2x2_grad);
+    m.def("softmax", &ten::softmax);
+    m.def("CELoss", &ten::CELoss);
+    m.def("CELoss_grad", &ten::CELoss_grad);
 }

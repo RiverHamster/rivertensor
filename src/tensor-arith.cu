@@ -64,8 +64,8 @@ namespace ten {
 DEF_MAP_OPT(relu, relu, out[i] = in[i] < 0.0 ? 0.0 : in[i])
 DEF_MAP_OPT(sigmoid, sigmoid, out[i] = 1.0 / (1.0 + ::exp(-in[i])))
 DEF_MAP_OPT(operator-, neg, out[i] = -in[i])
-DEF_BINARY_OPT(reluGrad, reluGrad, x, grad, out[i] = x[i] < 0.0 ? 0.0 : grad[i])
-DEF_BINARY_OPT(sigmoidGrad, sigmoidGrad, y, grad,
+DEF_BINARY_OPT(relu_grad, relu_grad, x, grad, out[i] = x[i] < 0.0 ? 0.0 : grad[i])
+DEF_BINARY_OPT(sigmoid_grad, sigmoid_grad, y, grad,
                out[i] = grad[i] * y[i] * (1.0 - y[i]))
 DEF_FUN_OPT(exp)
 DEF_FUN_OPT(log)

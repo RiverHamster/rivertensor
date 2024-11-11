@@ -7,7 +7,7 @@
 namespace ten {
 // we assume KBLK is a multiple of 4
 template <ssize_t CBLK, ssize_t HBLK, ssize_t WBLK, ssize_t KBLK>
-KERNEL conv2d_3x3_ker(const float *in, const float *ker, float *out, int C,
+KERNEL conv2d_3x3_ker(const float *in, const float *ker, float *y, int C,
                       int nblkC, int H, int nblkH, int W, int nblkW, int K,
                       int nblkK) {
     __shared__ float t_in[CBLK][HBLK + 2][WBLK + 2], t_ker[CBLK * 9][KBLK],
@@ -21,7 +21,7 @@ KERNEL conv2d_3x3_ker(const float *in, const float *ker, float *out, int C,
     int off_h = blockIdx.y * HBLK, off_w = blockIdx.z * WBLK;
     int tid = threadIdx.x;
     in += (ssize_t)batch * C * H * W;
-    out += (ssize_t)batch * K * H * W;
+    y += (ssize_t)batch * K * H * W;
 
     // load data
     // 256 threads
@@ -77,23 +77,22 @@ KERNEL conv2d_3x3_ker(const float *in, const float *ker, float *out, int C,
             }
             // use atomicAdd, optimize to reduction when necessary
             if (off_k + k < K && off_h + h < H && off_w + w < W)
-                atomicAdd(
-                    &out[(off_k + k) * H * W + (off_h + h) * W + off_w + w],
-                    sum);
+                atomicAdd(&y[(off_k + k) * H * W + (off_h + h) * W + off_w + w],
+                          sum);
         }
     }
 }
 
 // (N, C, H, W), (9, C, K) -> (N, K, H, W)
-void conv2d_3x3(const Tensor &t, const Tensor &ker, Tensor out) {
+void conv2d_3x3(const Tensor &x, const Tensor &ker, Tensor y) {
     constexpr int CBLK = 4, HBLK = 6, WBLK = 6, KBLK = 32;
-    assert(t.ndim() == 4);
-    assert(out.ndim() == 4);
+    assert(x.ndim() == 4);
+    assert(y.ndim() == 4);
     assert(ker.ndim() == 3);
-    unsigned N = t.shape()[0], C = t.shape()[1], H = t.shape()[2],
-             W = t.shape()[3], K = ker.shape()[2];
+    unsigned N = x.shape()[0], C = x.shape()[1], H = x.shape()[2],
+             W = x.shape()[3], K = ker.shape()[2];
     assert(ker.shape() == (shape_t{9, C, K}));
-    assert(out.shape() == (shape_t{N, K, H, W}));
+    assert(y.shape() == (shape_t{N, K, H, W}));
     // tiling: C = 4, H = 6, W = 6, K = 32
     unsigned nblkC = (C + CBLK - 1) / CBLK;
     unsigned nblkH = (H + HBLK - 1) / HBLK;
@@ -101,9 +100,8 @@ void conv2d_3x3(const Tensor &t, const Tensor &ker, Tensor out) {
     unsigned nblkK = (K + KBLK - 1) / KBLK;
     dim3 grid{N * nblkC * nblkK, nblkH, nblkW};
     ssize_t block = 324;
-    cudaMemsetAsync(out.data(), 0, sizeof(float) * out.size());
-    conv2d_3x3_ker<CBLK, HBLK, WBLK, KBLK>
-        <<<grid, block>>>(t.data(), ker.data(), out.data(), C, nblkC, H, nblkH,
-                          W, nblkW, K, nblkK);
+    cudaMemsetAsync(y.data(), 0, sizeof(float) * y.size());
+    conv2d_3x3_ker<CBLK, HBLK, WBLK, KBLK><<<grid, block>>>(
+        x.data(), ker.data(), y.data(), C, nblkC, H, nblkH, W, nblkW, K, nblkK);
 }
 } // namespace ten

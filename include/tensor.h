@@ -99,8 +99,8 @@ DEC_MAP_OPT(log2)
 DEC_MAP_OPT(sqrt)
 DEC_MAP_OPT(square)
 DEC_MAP_OPT(operator-)
-DEC_BINARY_OPT(reluGrad, x, grad)
-DEC_BINARY_OPT(sigmoidGrad, y, grad)
+DEC_BINARY_OPT(relu_grad, x, grad)
+DEC_BINARY_OPT(sigmoid_grad, y, grad)
 DEC_BINARY_OPT(operator+, x, y)
 DEC_BINARY_OPT(operator-, x, y)
 DEC_BINARY_OPT(operator*, x, y)
@@ -129,7 +129,16 @@ void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t);
 // t: (N, C, H, W)
 // ker: (9, C, K)
 // out: (N, K, H, W)
-void conv2d_3x3(const Tensor &t, const Tensor &ker, Tensor out);
+void conv2d_3x3(const Tensor &x, const Tensor &ker, Tensor y);
 void conv2d_3x3_grad_x(const Tensor &y, const Tensor &ker, Tensor dx);
 void conv2d_3x3_grad_k(const Tensor &y, const Tensor &ker, Tensor dk);
+
+// pooling
+void maxpool2d_2x2(const Tensor &x, Tensor y);
+void maxpool2d_2x2_grad(const Tensor &x, const Tensor &y, Tensor dx);
+
+// loss functions
+void softmax(const Tensor &x, Tensor y);
+float CELoss(const Tensor &x, std::vector<int> labels);
+void CELoss_grad(const Tensor &x, std::vector<int> labels, Tensor out);
 } // namespace ten
