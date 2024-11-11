@@ -6,8 +6,6 @@
 #include <thrust/inner_product.h>
 #include <thrust/execution_policy.h>
 
-// TODO: Check async errors?
-
 static const float f32_1 = 1.0f, f32_0 = 0.0f;
 
 namespace ten {
@@ -79,6 +77,34 @@ Tensor matmul(const Tensor &a, const Tensor &b) {
         ));
         return c;
     }
+}
+
+// x: [N, C] dy: [N, K] dw: [C, K]
+void fc_grad_w(const Tensor &x, const Tensor &dy, Tensor dw) {
+    assert(x.device() == TensorDevice::gpu);
+    assert(dy.device() == TensorDevice::gpu);
+    assert(x.ndim() == 2);
+    assert(dy.ndim() == 2);
+    ssize_t N = x.shape()[0], C = x.shape()[1], K = dy.shape()[1];
+    assert(dy.shape()[0] == N);
+
+    auto handle = get_cublas_handle();
+    blasChkerr(cublasSgemm_64(
+        handle,
+        CUBLAS_OP_N,
+        CUBLAS_OP_T,
+        K,
+        C,
+        N,
+        &f32_1,
+        dy.data(),
+        dy.stride()[0], // 
+        x.data(),
+        x.stride()[0],
+        &f32_0,
+        dw.data(),
+        dw.stride()[0]
+    ));
 }
 
 void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t) {

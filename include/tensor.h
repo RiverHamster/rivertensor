@@ -121,6 +121,7 @@ Tensor sum_d0(const Tensor &t);
 
 // matmul
 Tensor matmul(const Tensor &a, const Tensor &b);
+void fc_grad_w(const Tensor &x, const Tensor &dy, Tensor dx);
 float inner(const Tensor &a, const Tensor &b);
 Tensor outer(const Tensor &a, const Tensor &b);
 void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t);
