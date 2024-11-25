@@ -131,8 +131,8 @@ void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t);
 // ker: (9, C, K)
 // out: (N, K, H, W)
 Tensor conv2d_3x3(const Tensor &x, const Tensor &ker);
-Tensor conv2d_3x3_grad_x(const Tensor &y, const Tensor &ker);
-Tensor conv2d_3x3_grad_k(const Tensor &y, const Tensor &ker);
+Tensor conv2d_3x3_grad_x(const Tensor &dy, const Tensor &ker);
+Tensor conv2d_3x3_grad_k(const Tensor &dy, const Tensor &x);
 
 // pooling
 Tensor maxpool2d_2x2(const Tensor &x);
