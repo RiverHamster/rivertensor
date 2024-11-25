@@ -84,6 +84,7 @@ class Tensor {
 Tensor matmul(const Tensor &a, const Tensor &b);
 void matmul_(const Tensor &A, const Tensor &B, Tensor C, bool transA,
              bool transB, float alpha, float beta);
+Tensor matmul_t(const Tensor &A, const Tensor &B, bool transA, bool transB);
 
 #define DEC_MAP_OPT(name) Tensor name(const Tensor &x);
 #define DEC_BINARY_OPT(name, arg1, arg2)                                       \

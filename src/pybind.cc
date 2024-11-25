@@ -47,6 +47,7 @@ PYBIND11_MODULE(pytensor, m) {
     m.def("square", &ten::square);
     m.def("matmul", &ten::matmul);
     m.def("matmul_", &ten::matmul_);
+    m.def("matmul_t", &ten::matmul_t);
     m.def("fc_update_grad_w", &ten::fc_update_grad_w);
     m.def("inner", &ten::inner);
     m.def("outer", &ten::outer);

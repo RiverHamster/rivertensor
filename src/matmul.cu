@@ -23,12 +23,21 @@ void matmul_(const Tensor &A, const Tensor &B, Tensor C, bool transA,
     if (transB)
         std::swap(B0, B1);
     assert(A1 == B0);
+    assert(C.shape() == (shape_t{A0, B1}));
 
     auto handle = get_cublas_handle();
     blasChkerr(cublasSgemm_64(handle, transB ? CUBLAS_OP_T : CUBLAS_OP_N,
                               transA ? CUBLAS_OP_T : CUBLAS_OP_N, B1, A0, A1,
                               &alpha, B.data(), B.stride()[0], A.data(),
                               A.stride()[0], &beta, C.data(), C.stride()[0]));
+}
+
+Tensor matmul_t(const Tensor &A, const Tensor &B, bool transA, bool transB) {
+    assert(A.ndim() == 2);
+    assert(B.ndim() == 2);
+    Tensor C({A.shape()[0], B.shape()[1]}, TensorDevice::gpu);
+    matmul_(A, B, C, transA, transB, 1, 0);
+    return C;
 }
 
 Tensor matmul(const Tensor &a, const Tensor &b) {
