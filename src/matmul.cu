@@ -80,13 +80,14 @@ Tensor matmul(const Tensor &a, const Tensor &b) {
 }
 
 // x: [N, C] dy: [N, K] dw: [C, K]
-void fc_grad_w(const Tensor &x, const Tensor &dy, Tensor dw) {
+void fc_update_grad_w(const Tensor &x, const Tensor &dy, float alpha, Tensor dw) {
     assert(x.device() == TensorDevice::gpu);
     assert(dy.device() == TensorDevice::gpu);
     assert(x.ndim() == 2);
     assert(dy.ndim() == 2);
     ssize_t N = x.shape()[0], C = x.shape()[1], K = dy.shape()[1];
     assert(dy.shape()[0] == N);
+    assert(dw.shape() == (shape_t{C, K}));
 
     auto handle = get_cublas_handle();
     blasChkerr(cublasSgemm_64(
@@ -96,12 +97,12 @@ void fc_grad_w(const Tensor &x, const Tensor &dy, Tensor dw) {
         K,
         C,
         N,
-        &f32_1,
+        &alpha,
         dy.data(),
-        dy.stride()[0], // 
+        dy.stride()[0], 
         x.data(),
         x.stride()[0],
-        &f32_0,
+        &f32_1,
         dw.data(),
         dw.stride()[0]
     ));

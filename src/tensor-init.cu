@@ -15,7 +15,7 @@ __global__ void fill_1_kernel(float *f, intptr_t n) {
 namespace ten {
 Tensor zeros(const shape_t &shape) {
     Tensor t(shape, TensorDevice::gpu);
-    cudaMemsetAsync(t.data(), 0, t.aligned_size());
+    cudaMemsetAsync(t.data(), 0, t.aligned_size() * sizeof(float));
     return t;
 }
 Tensor ones(const shape_t &shape) {

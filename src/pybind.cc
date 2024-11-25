@@ -46,7 +46,7 @@ PYBIND11_MODULE(pytensor, m) {
     m.def("sqrt", &ten::sqrt);
     m.def("square", &ten::square);
     m.def("matmul", &ten::matmul);
-    m.def("fc_grad_w", &ten::fc_grad_w);
+    m.def("fc_update_grad_w", &ten::fc_update_grad_w);
     m.def("inner", &ten::inner);
     m.def("outer", &ten::outer);
     m.def("outer_update", &ten::outer_update);
