@@ -33,7 +33,7 @@ Buffer::Buffer(ssize_t nelem, TensorDevice dev) : dev(dev) {
     if (dev == TensorDevice::cpu) {
         cudaMallocHost(&data, nbytes);
     } else {
-        cudaMalloc(&data, nbytes);
+        cudaMallocAsync(&data, nbytes, cudaStreamDefault);
         // printf("GPU Buffer of %.6lf MB (%zd elems) allocated: %p\n",
         //        4.0 * nelem / 1e6, nelem, data);
     }
@@ -50,7 +50,7 @@ void Buffer::free() {
         cudaFreeHost(data);
     } else {
         // printf("GPU Buffer %p freed\n", data);
-        cudaFree(data);
+        cudaFreeAsync(data, cudaStreamDefault);
     }
 }
 Buffer &Buffer::operator=(const Buffer &&r) {
@@ -72,14 +72,16 @@ Tensor::Tensor(const shape_t &s, TensorDevice d)
     }
     _size = prod;
     _buf = std::make_shared<Buffer>(size(), d);
-    cudaMemset(data(), 0, size() * sizeof(float));
 }
 
 Tensor Tensor::copy_to(TensorDevice dev) {
     size_t nbytes = size() * sizeof(float);
     Tensor r(shape(), dev);
-    if (nbytes)
-        cudaMemcpy(r.data(), data(), nbytes, cu_copydir(device(), dev));
+    auto dir = cu_copydir(device(), dev);
+    if (dir == cudaMemcpyDeviceToDevice && nbytes)
+        cudaMemcpyAsync(r.data(), data(), nbytes, dir);
+    else if (nbytes)
+        cudaMemcpy(r.data(), data(), nbytes, dir);
     return r;
 }
 Tensor Tensor::copy() { return copy_to(device()); }

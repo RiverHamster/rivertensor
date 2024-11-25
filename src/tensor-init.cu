@@ -13,7 +13,11 @@ __global__ void fill_1_kernel(float *f, intptr_t n) {
 }
 
 namespace ten {
-Tensor zeros(const shape_t &shape) { return Tensor(shape, TensorDevice::gpu); }
+Tensor zeros(const shape_t &shape) {
+    Tensor t(shape, TensorDevice::gpu);
+    cudaMemsetAsync(t.data(), 0, t.aligned_size());
+    return t;
+}
 Tensor ones(const shape_t &shape) {
     Tensor t(shape, TensorDevice::gpu);
     fill_1_kernel<<<t.size() + BLOCK_SIZE - 1, BLOCK_SIZE>>>(t.data(),

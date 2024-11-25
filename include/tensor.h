@@ -62,7 +62,7 @@ class Tensor {
     TensorDevice device() const;
 
     Tensor();
-    // initalize a tensor with 0
+    // initialize a tensor with unspecified values 
     Tensor(const shape_t &s, const TensorDevice d);
     // other constructors remain default
 
