@@ -29,14 +29,16 @@ KERNEL maxpool2d_2x2_ker(const float *__restrict__ in, float *__restrict__ out,
         mx;
 }
 
-void maxpool2d_2x2(const Tensor &in, Tensor out) {
+Tensor maxpool2d_2x2(const Tensor &in) {
     assert(in.ndim() == 4);
-    assert(out.ndim() == 4);
+    // assert(out.ndim() == 4);
     ssize_t N = in.shape()[0], C = in.shape()[1], H = in.shape()[2],
             W = in.shape()[3];
+    Tensor out({N, C, H / 2, W / 2}, TensorDevice::gpu);
     ssize_t tiles = N * C * (H / 2) * (W / 2);
     maxpool2d_2x2_ker<<<(tiles + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(
         in.data(), out.data(), N, C, H, W, tiles);
+    return out;
 }
 
 KERNEL maxpool2d_2x2_d_ker(const float *__restrict__ x, const float *__restrict__ dy, float *__restrict__ dx,
@@ -67,18 +69,20 @@ KERNEL maxpool2d_2x2_d_ker(const float *__restrict__ x, const float *__restrict_
     dx[idx + mx_idx] = grad;
 }
 
-void maxpool2d_2x2_grad(const Tensor &x, const Tensor &dy, Tensor dx) {
+Tensor maxpool2d_2x2_grad(const Tensor &x, const Tensor &dy) {
     assert(x.ndim() == 4);
     assert(dy.ndim() == 4);
-    assert(dx.ndim() == 4);
+    // assert(dx.ndim() == 4);
     ssize_t N = x.shape()[0], C = x.shape()[1], H = x.shape()[2],
             W = x.shape()[3];
-    assert(dx.shape() == x.shape());
+    // assert(dx.shape() == x.shape());
     assert(dy.shape() == (shape_t{N, C, H / 2, W / 2}));
+    Tensor dx = zeros(x.shape());
 
     ssize_t tiles = N * C * (H / 2) * (W / 2);
     cudaMemsetAsync(dx.data(), 0, sizeof(float) * dx.size());
     maxpool2d_2x2_d_ker<<<(tiles + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(
         x.data(), dy.data(), dx.data(), N, C, H, W, tiles);
+    return dx;
 }
 } // namespace ten

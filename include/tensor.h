@@ -130,16 +130,16 @@ void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t);
 // t: (N, C, H, W)
 // ker: (9, C, K)
 // out: (N, K, H, W)
-void conv2d_3x3(const Tensor &x, const Tensor &ker, Tensor y);
-void conv2d_3x3_grad_x(const Tensor &y, const Tensor &ker, Tensor dx);
-void conv2d_3x3_grad_k(const Tensor &y, const Tensor &ker, Tensor dk);
+Tensor conv2d_3x3(const Tensor &x, const Tensor &ker);
+Tensor conv2d_3x3_grad_x(const Tensor &y, const Tensor &ker);
+Tensor conv2d_3x3_grad_k(const Tensor &y, const Tensor &ker);
 
 // pooling
-void maxpool2d_2x2(const Tensor &x, Tensor y);
-void maxpool2d_2x2_grad(const Tensor &x, const Tensor &y, Tensor dx);
+Tensor maxpool2d_2x2(const Tensor &x);
+Tensor maxpool2d_2x2_grad(const Tensor &x, const Tensor &y);
 
 // loss functions
-void softmax(const Tensor &x, Tensor y);
+Tensor softmax(const Tensor &x);
 float CELoss(const Tensor &x, std::vector<int> labels);
-void CELoss_grad(const Tensor &x, std::vector<int> labels, Tensor out);
+Tensor CELoss_grad(const Tensor &x, std::vector<int> labels);
 } // namespace ten

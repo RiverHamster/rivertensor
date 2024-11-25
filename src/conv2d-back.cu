@@ -90,15 +90,16 @@ KERNEL conv2d_3x3_dx_ker(const float *y, const float *ker, float *dx, int C,
     }
 }
 
-void conv2d_3x3_grad_x(const Tensor &dy, const Tensor &ker, Tensor dx) {
+Tensor conv2d_3x3_grad_x(const Tensor &dy, const Tensor &ker) {
     constexpr int CBLK = 4, HBLK = 6, WBLK = 6, KBLK = 32;
     assert(dy.ndim() == 4);
-    assert(dx.ndim() == 4);
+    // assert(dx.ndim() == 4);
     assert(ker.ndim() == 3);
     ssize_t N = dy.shape()[0], K = dy.shape()[1], H = dy.shape()[2], W = dy.shape()[3],
             C = ker.shape()[1];
     assert(ker.shape() == (shape_t{9, C, K}));
-    assert(dx.shape() == (shape_t{N, C, H, W}));
+    Tensor dx = zeros({N, C, H, W});
+    // assert(dx.shape() == (shape_t{N, C, H, W}));
 
     // BACK PASS: exchange C, K
     ssize_t nblkC = (K + CBLK - 1) / CBLK;
@@ -111,6 +112,7 @@ void conv2d_3x3_grad_x(const Tensor &dy, const Tensor &ker, Tensor dx) {
     conv2d_3x3_dx_ker<CBLK, HBLK, WBLK, KBLK>
         <<<grid, block>>>(dy.data(), ker.data(), dx.data(), K, nblkC, H, nblkH,
                           W, nblkW, C, nblkK);
+    return dx;
 }
 
 // we assume KBLK is a multiple of 4
@@ -182,13 +184,14 @@ KERNEL conv2d_3x3_dk_ker(const float *x, const float *dy, float *dk, int C,
     }
 }
 
-void conv2d_3x3_grad_k(const Tensor &dy, const Tensor &x, Tensor dk) {
+Tensor conv2d_3x3_grad_k(const Tensor &dy, const Tensor &x) {
     assert(dy.ndim() == 4);
     assert(x.ndim() == 4);
-    assert(dk.ndim() == 3);
+    // assert(dk.ndim() == 3);
     ssize_t N = dy.shape()[0], K = dy.shape()[1], H = dy.shape()[2], W = dy.shape()[3],
             C = x.shape()[1];
-    assert(dk.shape() == (shape_t{9, C, K}));
+    Tensor dk = zeros({9, C, K});
+    // assert(dk.shape() == (shape_t{9, C, K}));
     assert(x.shape() == (shape_t{N, C, H, W}));
     constexpr int CBLK = 4, KBLK = 8, HBLK = 6, WBLK = 6;
     int nblkC = (C + CBLK - 1) / CBLK;
@@ -201,5 +204,6 @@ void conv2d_3x3_grad_k(const Tensor &dy, const Tensor &x, Tensor dk) {
     conv2d_3x3_dk_ker<CBLK, HBLK, WBLK, KBLK>
         <<<grid, block>>>(x.data(), dy.data(), dk.data(), C, nblkC, H, nblkH,
                           W, nblkW, K, nblkK);
+    return dk;
 }
 } // namespace ten

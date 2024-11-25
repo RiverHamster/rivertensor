@@ -84,15 +84,16 @@ KERNEL conv2d_3x3_ker(const float *in, const float *ker, float *y, int C,
 }
 
 // (N, C, H, W), (9, C, K) -> (N, K, H, W)
-void conv2d_3x3(const Tensor &x, const Tensor &ker, Tensor y) {
+Tensor conv2d_3x3(const Tensor &x, const Tensor &ker) {
     constexpr int CBLK = 4, HBLK = 6, WBLK = 6, KBLK = 32;
     assert(x.ndim() == 4);
-    assert(y.ndim() == 4);
+    // assert(y.ndim() == 4);
     assert(ker.ndim() == 3);
     unsigned N = x.shape()[0], C = x.shape()[1], H = x.shape()[2],
              W = x.shape()[3], K = ker.shape()[2];
     assert(ker.shape() == (shape_t{9, C, K}));
-    assert(y.shape() == (shape_t{N, K, H, W}));
+    Tensor y = zeros({N, K, H, W});
+    // assert(y.shape() == (shape_t{N, K, H, W}));
     // tiling: C = 4, H = 6, W = 6, K = 32
     unsigned nblkC = (C + CBLK - 1) / CBLK;
     unsigned nblkH = (H + HBLK - 1) / HBLK;
@@ -103,5 +104,6 @@ void conv2d_3x3(const Tensor &x, const Tensor &ker, Tensor y) {
     cudaMemsetAsync(y.data(), 0, sizeof(float) * y.size());
     conv2d_3x3_ker<CBLK, HBLK, WBLK, KBLK><<<grid, block>>>(
         x.data(), ker.data(), y.data(), C, nblkC, H, nblkH, W, nblkW, K, nblkK);
+    return y;
 }
 } // namespace ten

@@ -15,9 +15,7 @@ def T_c2d(N, C, H, W, K, output=False):
         print("Image\n", image)
         print("Filter\n", fil)
     # calculate with pytensor
-    res = pt.zeros([N, K, H, W])
-    pt.conv2d_3x3(pt.from_numpy(image), pt.from_numpy(fil), res)
-    res = res.numpy()
+    res = pt.conv2d_3x3(pt.from_numpy(image), pt.from_numpy(fil)).numpy()
     print(res.shape)
 
     # calculate with scipy
@@ -46,15 +44,12 @@ def T_c2d_dx(N, C, H, W, K, output=False):
     coeff = pt.randn([N, K, H, W])
     if output:
         print(f"coeff: {coeff.numpy()}")
-    y = pt.zeros([N, K, H, W])
-    y1 = y.copy()
-    pt.conv2d_3x3(x, ker, y)
-    pt.conv2d_3x3(x + delta, ker, y1)
+    y = pt.conv2d_3x3(x, ker)
+    y1 = pt.conv2d_3x3(x + delta, ker)
     Y = pt.inner(y, coeff)
     Y1 = pt.inner(y1, coeff)
     dY = Y1 - Y
-    gradX = pt.zeros([N, C, H, W])
-    pt.conv2d_3x3_grad_x(coeff, ker, gradX)
+    gradX = pt.conv2d_3x3_grad_x(coeff, ker)
     if output:
         print(f"gradX: {gradX.numpy()}")
     dY_pred = pt.inner(delta, gradX)
@@ -75,15 +70,12 @@ def T_c2d_dk(N, C, H, W, K, output=False):
     coeff = pt.randn([N, K, H, W])
     if output:
         print(f"coeff: {coeff.numpy()}")
-    y = pt.zeros([N, K, H, W])
-    y1 = y.copy()
-    pt.conv2d_3x3(x, ker, y)
-    pt.conv2d_3x3(x, ker + delta, y1)
+    y = pt.conv2d_3x3(x, ker)
+    y1 = pt.conv2d_3x3(x, ker + delta)
     Y = pt.inner(y, coeff.newaxis)
     Y1 = pt.inner(y1, coeff.newaxis)
     dY = Y1 - Y
-    gradK = pt.zeros([9, C, K])
-    pt.conv2d_3x3_grad_k(coeff, x, gradK)
+    gradK = pt.conv2d_3x3_grad_k(coeff, x)
     dY_pred = pt.inner(delta, gradK)
     print(f"Y = {Y}, dY = {dY}, dY_pred = {dY_pred}")
     # compare with relative err
@@ -121,4 +113,3 @@ def test_conv2d_grad_k():
         W = random.randint(1, 32)
         K = random.randint(1, 128)
         T_c2d_dx(N, C, H, W, K)
-

@@ -8,10 +8,11 @@
 #include <vector>
 
 namespace ten {
-void softmax(const Tensor &t, Tensor out) {
-    assert(t.shape() == out.shape());
+Tensor softmax(const Tensor &t) {
+    // assert(t.shape() == out.shape());
     assert(t.ndim() == 1 || t.ndim() == 2);
-    assert(out.shape() == t.shape());
+    Tensor out = zeros(t.shape());
+    // assert(out.shape() == t.shape());
     ssize_t N = t.ndim() == 1 ? 1 : t.shape()[0], C = t.shape().back();
 
     for (ssize_t i = 0; i < N; ++i) {
@@ -29,14 +30,14 @@ void softmax(const Tensor &t, Tensor out) {
                               return std::exp(x - mx) / exp_sum;
                           });
     }
+    return out;
 }
 
 float CELoss(const Tensor &t, std::vector<int> labels) {
     assert(t.ndim() == 2);
     ssize_t N = t.shape()[0], C = t.shape().back();
 
-    Tensor sm = zeros(t.shape());
-    softmax(t, sm);
+    Tensor sm = softmax(t);
 
     float sum = 0;
     for (ssize_t i = 0; i < N; ++i) {
@@ -45,15 +46,16 @@ float CELoss(const Tensor &t, std::vector<int> labels) {
     return sum / N;
 }
 
-void CELoss_grad(const Tensor &t, std::vector<int> labels, Tensor dx) {
+Tensor CELoss_grad(const Tensor &t, std::vector<int> labels) {
     assert(t.ndim() == 1 || t.ndim() == 2);
-    assert(dx.shape() == dx.shape());
+    // assert(dx.shape() == t.shape());
     ssize_t N = t.ndim() == 1 ? 1 : t.shape()[0], C = t.shape().back();
 
-    softmax(t, dx);
+    Tensor dx = softmax(t);
     for (int i = 0; i < N; ++i) {
         dx.set({i, labels[i]}, dx.at({i, labels[i]}) - 1);
     }
     dx = dx * (1. / N);
+    return dx;
 }
 } // namespace ten

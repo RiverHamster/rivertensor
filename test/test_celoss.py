@@ -16,8 +16,7 @@ def CELoss(x, labels):
 
 def T_softmax(n, mu=0, sigma=1):
     x = np.random.randn(n) * sigma + mu
-    sm_pt = pt.randn([n])
-    pt.softmax(pt.from_numpy(x), sm_pt)
+    sm_pt = pt.softmax(pt.from_numpy(x))
     sm_pt = sm_pt.numpy()
     sm = softmax(x)
     assert np.max(np.abs(sm_pt - sm) < 1e-3)

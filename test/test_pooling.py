@@ -9,8 +9,7 @@ def T_pooling(N, C, H, W):
     im = np.random.randn(N, C, H, W)
     P = nn.MaxPool2d(2)
     pool = P(torch.from_numpy(im)).numpy()
-    pool_pt = pt.randn([N, C, H // 2, W // 2])
-    pt.maxpool2d_2x2(pt.from_numpy(im), pool_pt)
+    pool_pt = pt.maxpool2d_2x2(pt.from_numpy(im))
     pool_pt = pool_pt.numpy()
     assert np.max(np.abs(pool - pool_pt)) <= 1e-3
 
@@ -22,13 +21,11 @@ def T_pooling_d(N, C, H, W):
     im_torch = torch.from_numpy(im)
     im_torch.requires_grad = True
     pool = P(im_torch)
-    pool_pt = pt.randn([N, C, H // 2, W // 2])
-    pt.maxpool2d_2x2(pt.from_numpy(im), pool_pt)
+    # pool_pt = pt.maxpool2d_2x2(pt.from_numpy(im))
     loss = torch.inner(pool.ravel(), torch.from_numpy(coeff).ravel())
     loss.backward()
     dx = im_torch.grad.numpy()
-    dx_pt = pt.randn([N, C, H, W])
-    pt.maxpool2d_2x2_grad(pt.from_numpy(im), pt.from_numpy(coeff), dx_pt)
+    dx_pt = pt.maxpool2d_2x2_grad(pt.from_numpy(im), pt.from_numpy(coeff))
     dx_pt = dx_pt.numpy()
     print(dx)
     print(dx_pt)
