@@ -62,7 +62,7 @@ class Tensor {
     TensorDevice device() const;
 
     Tensor();
-    // initialize a tensor with unspecified values 
+    // initialize a tensor with unspecified values
     Tensor(const shape_t &s, const TensorDevice d);
     // other constructors remain default
 
@@ -82,6 +82,8 @@ class Tensor {
 };
 
 Tensor matmul(const Tensor &a, const Tensor &b);
+void matmul_(const Tensor &A, const Tensor &B, Tensor C, bool transA,
+             bool transB, float alpha, float beta);
 
 #define DEC_MAP_OPT(name) Tensor name(const Tensor &x);
 #define DEC_BINARY_OPT(name, arg1, arg2)                                       \
@@ -121,7 +123,8 @@ Tensor sum_d0(const Tensor &t);
 
 // matmul
 Tensor matmul(const Tensor &a, const Tensor &b);
-void fc_update_grad_w(const Tensor &x, const Tensor &dy, float alpha, Tensor dw);
+void fc_update_grad_w(const Tensor &x, const Tensor &dy, float alpha,
+                      Tensor dw);
 float inner(const Tensor &a, const Tensor &b);
 Tensor outer(const Tensor &a, const Tensor &b);
 void outer_update(const Tensor &x, const Tensor &y, float alpha, Tensor t);
