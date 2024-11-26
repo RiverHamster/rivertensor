@@ -35,7 +35,7 @@ void matmul_(const Tensor &A, const Tensor &B, Tensor C, bool transA,
 Tensor matmul_t(const Tensor &A, const Tensor &B, bool transA, bool transB) {
     assert(A.ndim() == 2);
     assert(B.ndim() == 2);
-    Tensor C({A.shape()[0], B.shape()[1]}, TensorDevice::gpu);
+    Tensor C({A.shape()[transA], B.shape()[!transB]}, TensorDevice::gpu);
     matmul_(A, B, C, transA, transB, 1, 0);
     return C;
 }
