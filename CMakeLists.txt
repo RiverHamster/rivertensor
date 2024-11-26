@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PYBIND11_FINDPYTHON ON)
-add_subdirectory(extern/pybind11)
+find_package(pybind11 CONFIG REQUIRED)
 set(CMAKE_CUDA_ARCHITECTURES 80)
 project(Tensor VERSION 0.1.0
                DESCRIPTION "Tensor library for the PKU Programming in AI course"
