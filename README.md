@@ -10,6 +10,8 @@ The current status of the project is HW3.
 ## Building the project
 The project is tested on Linux with CUDA 12.3, Python 3.12.7, and pytest 8.3.3.
 No Python packaging with `setup.py` is done, and the project is built with CMake.
+Make sure `pytest` and `pybind11` is installed with conda to proceed with
+building and testing the project.
 
 To build and test the project, use
 ```bash
@@ -21,3 +23,5 @@ To test the MNIST training, use
 ```bash
 python mnist/mnist.py
 ```
+(You may need to export environment variable `PYTHONPATH=build` in order to find
+the Python package, if not done automatically by `.env`)
