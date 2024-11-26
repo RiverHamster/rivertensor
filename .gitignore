@@ -5,3 +5,6 @@ extern
 __pycache__
 .pytest_cache
 *.log
+mnist/mnist-data
+*.nsys-rep
+.pytest_cache
