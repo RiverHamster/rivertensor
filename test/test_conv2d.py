@@ -1,4 +1,4 @@
-import pytensor as pt
+import rivertensor as rt
 import numpy as np
 import scipy
 import random
@@ -14,8 +14,8 @@ def T_c2d(N, C, H, W, K, output=False):
     if output:
         print("Image\n", image)
         print("Filter\n", fil)
-    # calculate with pytensor
-    res = pt.conv2d_3x3(pt.from_numpy(image), pt.from_numpy(fil)).numpy()
+    # calculate with rivertensor
+    res = rt.conv2d_3x3(rt.from_numpy(image), rt.from_numpy(fil)).numpy()
     print(res.shape)
 
     # calculate with scipy
@@ -33,50 +33,50 @@ def T_c2d(N, C, H, W, K, output=False):
 
 def T_c2d_dx(N, C, H, W, K, output=False):
     print(f"T_c2d_dx {C} {H} {W} {K}")
-    x = pt.randn([N, C, H, W])
+    x = rt.randn([N, C, H, W])
     if output: 
         print(f"x: {x.numpy()}")
-    ker = pt.randn([9, C, K])
+    ker = rt.randn([9, C, K])
     if output:
         print(f"ker: {ker.numpy()}")
     eps = 1e-3
-    delta = pt.randn([N, C, H, W]) * eps
-    coeff = pt.randn([N, K, H, W])
+    delta = rt.randn([N, C, H, W]) * eps
+    coeff = rt.randn([N, K, H, W])
     if output:
         print(f"coeff: {coeff.numpy()}")
-    y = pt.conv2d_3x3(x, ker)
-    y1 = pt.conv2d_3x3(x + delta, ker)
-    Y = pt.inner(y, coeff)
-    Y1 = pt.inner(y1, coeff)
+    y = rt.conv2d_3x3(x, ker)
+    y1 = rt.conv2d_3x3(x + delta, ker)
+    Y = rt.inner(y, coeff)
+    Y1 = rt.inner(y1, coeff)
     dY = Y1 - Y
-    gradX = pt.conv2d_3x3_grad_x(coeff, ker)
+    gradX = rt.conv2d_3x3_grad_x(coeff, ker)
     if output:
         print(f"gradX: {gradX.numpy()}")
-    dY_pred = pt.inner(delta, gradX)
+    dY_pred = rt.inner(delta, gradX)
     print(f"Y = {Y}, dY = {dY}, dY_pred = {dY_pred}")
     # compare with relative err
     assert np.abs(dY_pred - dY) / np.max(np.abs([Y, Y1, dY])) / eps < 1
 
 def T_c2d_dk(N, C, H, W, K, output=False):
     print(f"T_c2d_dx {C} {H} {W} {K}")
-    x = pt.randn([N, C, H, W])
+    x = rt.randn([N, C, H, W])
     if output: 
         print(f"x: {x.numpy()}")
-    ker = pt.randn([9, C, K])
+    ker = rt.randn([9, C, K])
     if output:
         print(f"ker: {ker.numpy()}")
     eps = 1e-3
-    delta = pt.randn([9, C, K]) * eps
-    coeff = pt.randn([N, K, H, W])
+    delta = rt.randn([9, C, K]) * eps
+    coeff = rt.randn([N, K, H, W])
     if output:
         print(f"coeff: {coeff.numpy()}")
-    y = pt.conv2d_3x3(x, ker)
-    y1 = pt.conv2d_3x3(x, ker + delta)
-    Y = pt.inner(y, coeff.newaxis)
-    Y1 = pt.inner(y1, coeff.newaxis)
+    y = rt.conv2d_3x3(x, ker)
+    y1 = rt.conv2d_3x3(x, ker + delta)
+    Y = rt.inner(y, coeff.newaxis)
+    Y1 = rt.inner(y1, coeff.newaxis)
     dY = Y1 - Y
-    gradK = pt.conv2d_3x3_grad_k(coeff, x)
-    dY_pred = pt.inner(delta, gradK)
+    gradK = rt.conv2d_3x3_grad_k(coeff, x)
+    dY_pred = rt.inner(delta, gradK)
     print(f"Y = {Y}, dY = {dY}, dY_pred = {dY_pred}")
     # compare with relative err
     assert np.abs(dY_pred - dY) / np.max(np.abs([Y, Y1, dY / eps])) / eps < 0.2

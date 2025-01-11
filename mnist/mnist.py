@@ -2,7 +2,7 @@ import os
 import torch
 import torchvision
 import torchvision.transforms.v2 as v2
-import pytensor as pt
+import rivertensor as rt
 import numpy as np
 import tqdm
 

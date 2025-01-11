@@ -23,10 +23,10 @@ target_compile_options(tensor PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
                        --extended-lambda
                        >)
 
-pybind11_add_module(pytensor src/pybind.cc src/tensor-numpy.cc)
-target_link_libraries(pytensor PUBLIC tensor)
-target_include_directories(pytensor PUBLIC include)
-install(TARGETS pytensor DESTINATION .)
+pybind11_add_module(rivertensor src/pybind.cc src/tensor-numpy.cc)
+target_link_libraries(rivertensor PUBLIC tensor)
+target_include_directories(rivertensor PUBLIC include)
+install(TARGETS rivertensor DESTINATION .)
 
 # C++ test binary
 add_executable(tensor_test test/tensor_test.cc)

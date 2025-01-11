@@ -1,4 +1,4 @@
-import pytensor as pt
+import rivertensor as rt
 import torch
 import torch.nn as nn
 import numpy as np
@@ -9,9 +9,9 @@ def T_pooling(N, C, H, W):
     im = np.random.randn(N, C, H, W)
     P = nn.MaxPool2d(2)
     pool = P(torch.from_numpy(im)).numpy()
-    pool_pt = pt.maxpool2d_2x2(pt.from_numpy(im))
-    pool_pt = pool_pt.numpy()
-    assert np.max(np.abs(pool - pool_pt)) <= 1e-3
+    pool_rt = rt.maxpool2d_2x2(rt.from_numpy(im))
+    pool_rt = pool_rt.numpy()
+    assert np.max(np.abs(pool - pool_rt)) <= 1e-3
 
 def T_pooling_d(N, C, H, W):
     assert H >= 2 and W >= 2
@@ -21,15 +21,15 @@ def T_pooling_d(N, C, H, W):
     im_torch = torch.from_numpy(im)
     im_torch.requires_grad = True
     pool = P(im_torch)
-    # pool_pt = pt.maxpool2d_2x2(pt.from_numpy(im))
+    # pool_rt = rt.maxpool2d_2x2(rt.from_numpy(im))
     loss = torch.inner(pool.ravel(), torch.from_numpy(coeff).ravel())
     loss.backward()
     dx = im_torch.grad.numpy()
-    dx_pt = pt.maxpool2d_2x2_grad(pt.from_numpy(im), pt.from_numpy(coeff))
-    dx_pt = dx_pt.numpy()
+    dx_rt = rt.maxpool2d_2x2_grad(rt.from_numpy(im), rt.from_numpy(coeff))
+    dx_rt = dx_rt.numpy()
     print(dx)
-    print(dx_pt)
-    assert np.max(np.abs(dx_pt - dx)) < 1e-3
+    print(dx_rt)
+    assert np.max(np.abs(dx_rt - dx)) < 1e-3
 
 def test_pooling():
     for i in range(100):

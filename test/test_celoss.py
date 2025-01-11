@@ -1,5 +1,5 @@
 import numpy as np
-import pytensor as pt
+import rivertensor as rt
 import random
 
 random.seed(0)
@@ -16,29 +16,29 @@ def CELoss(x, labels):
 
 def T_softmax(n, mu=0, sigma=1):
     x = np.random.randn(n) * sigma + mu
-    sm_pt = pt.softmax(pt.from_numpy(x))
-    sm_pt = sm_pt.numpy()
+    sm_rt = rt.softmax(rt.from_numpy(x))
+    sm_rt = sm_rt.numpy()
     sm = softmax(x)
-    assert np.max(np.abs(sm_pt - sm) < 1e-3)
+    assert np.max(np.abs(sm_rt - sm) < 1e-3)
 
 def T_celoss(n, c, mu=0, sigma=1):
     x = np.random.randn(n, c) * sigma + mu
     labels = np.random.randint(c, size=[n])
-    loss_pt = pt.CELoss(pt.from_numpy(x), labels.tolist())
+    loss_rt = rt.CELoss(rt.from_numpy(x), labels.tolist())
     loss = CELoss(x, labels.tolist())
-    assert np.max(np.abs(loss_pt - loss) < 1e-3)
+    assert np.max(np.abs(loss_rt - loss) < 1e-3)
 
 def T_celoss_grad(n, c):
-    x = pt.randn([n, c])
+    x = rt.randn([n, c])
     eps = 1e-3
-    dx = pt.randn([n, c]) * eps
+    dx = rt.randn([n, c]) * eps
     labels = np.random.randint(c, size=[n])
-    loss = pt.CELoss(x, labels.tolist())
-    loss1 = pt.CELoss(x + dx, labels.tolist())
-    grad = pt.randn([n, c])
-    pt.CELoss_grad(x, labels.tolist(), grad)
+    loss = rt.CELoss(x, labels.tolist())
+    loss1 = rt.CELoss(x + dx, labels.tolist())
+    grad = rt.randn([n, c])
+    rt.CELoss_grad(x, labels.tolist(), grad)
     dloss = loss1 - loss
-    dloss_pred = pt.inner(dx, grad)
+    dloss_pred = rt.inner(dx, grad)
     assert np.abs(dloss - dloss_pred) / np.max([loss, loss1, dloss, 1.0]) / eps < 0.1
 
 def test_softmax():

@@ -1,4 +1,4 @@
-#include "pytensor.h"
+#include "rivertensor.h"
 #include <cuda_runtime.h>
 
 namespace pyten {
