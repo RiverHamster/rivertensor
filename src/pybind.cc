@@ -1,6 +1,6 @@
 #include "rivertensor.h"
 
-PYBIND11_MODULE(rivertensor, m) {
+PYBIND11_MODULE(rivertensor_cpp, m) {
     m.doc() = "Tensor library for PKU Programming in AI course";
     py::class_<Tensor>(m, "Tensor")
         .def(py::init<shape_t, TensorDevice>())

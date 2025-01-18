@@ -1,0 +1,20 @@
+[build-system]
+requires = ["scikit-build-core", "pybind11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "rivertensor"
+version = "0.0.1"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+xfail_strict = true
+log_cli_level = "INFO"
+filterwarnings = [
+  "error",
+  "ignore::pytest.PytestCacheWarning",
+]
+testpaths = ["test"]
+
+[tool.scikit-build]
+editable.rebuild = true

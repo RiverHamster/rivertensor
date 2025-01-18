@@ -4,10 +4,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 set(CMAKE_CUDA_ARCHITECTURES 80)
-project(Tensor VERSION 0.1.0
-               DESCRIPTION "Tensor library for the PKU Programming in AI course"
-               LANGUAGES CXX CUDA)
+project(${SKBUILD_PROJECT_NAME} VERSION ${SKBUILD_PROJECT_VERSION}
+        LANGUAGES CXX CUDA)
 find_package(CUDAToolkit REQUIRED)
+# set(PYBIND11_NEWPYTHON ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD 17)
@@ -23,10 +23,10 @@ target_compile_options(tensor PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
                        --extended-lambda
                        >)
 
-pybind11_add_module(rivertensor src/pybind.cc src/tensor-numpy.cc)
-target_link_libraries(rivertensor PUBLIC tensor)
-target_include_directories(rivertensor PUBLIC include)
-install(TARGETS rivertensor DESTINATION .)
+pybind11_add_module(rivertensor_cpp src/pybind.cc src/tensor-numpy.cc)
+target_link_libraries(rivertensor_cpp PUBLIC tensor)
+target_include_directories(rivertensor_cpp PUBLIC include)
+install(TARGETS rivertensor_cpp DESTINATION rivertensor)
 
 # C++ test binary
 add_executable(tensor_test test/tensor_test.cc)
