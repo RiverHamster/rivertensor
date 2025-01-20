@@ -1,4 +1,4 @@
-import rivertensor as rt
+import rivertensor.base as rt
 import time
 
 N = 8

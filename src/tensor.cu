@@ -64,7 +64,7 @@ Tensor::Tensor()
     : _size(0), _shape({0}), _stride({1}), _buf(std::make_shared<Buffer>()) {}
 Tensor::Tensor(const shape_t &s, TensorDevice d)
     : _shape(s), _stride(s.size()) {
-    assert(s.size() > 0);
+    // allow scalar Tensor of size ()
     ssize_t prod = 1;
     for (ssize_t i = s.size() - 1; i != -1; --i) {
         _stride[i] = prod;

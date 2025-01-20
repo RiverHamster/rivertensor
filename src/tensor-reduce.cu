@@ -52,7 +52,7 @@ Tensor sum_d0(const Tensor &t) {
     float *buf1, *buf2, *buf;
     ssize_t nblk = cdiv(t.shape()[0], reduce_factor);
     ssize_t nblk2 = cdiv(nblk, reduce_factor);
-    cudaMalloc(&buf, (nblk + nblk2) * t.stride()[0] * sizeof(float));
+    cudaMallocAsync(&buf, (nblk + nblk2) * t.stride()[0] * sizeof(float), 0);
     buf1 = buf;
     buf2 = buf1 + nblk * t.stride()[0];
     block_sum_ker<reduce_factor>
@@ -68,9 +68,9 @@ Tensor sum_d0(const Tensor &t) {
     }
     Tensor r(shape_t(t.shape().begin() + 1, t.shape().end()),
              TensorDevice::gpu);
-    cudaMemcpy(r.data(), buf1, t.stride()[0] * sizeof(float),
-               cudaMemcpyDeviceToDevice);
-    cudaFree(buf);
+    cudaMemcpyAsync(r.data(), buf1, t.stride()[0] * sizeof(float),
+               cudaMemcpyDeviceToDevice, 0);
+    cudaFreeAsync(buf, 0);
     return r;
 }
 } // namespace ten

@@ -1,4 +1,4 @@
-import rivertensor as rt
+import rivertensor.base as rt
 import numpy as np
 import scipy
 import random

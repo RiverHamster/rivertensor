@@ -1,6 +1,6 @@
 import random
 import numpy as np
-import rivertensor as rt
+import rivertensor.base as rt
 
 random.seed(0)
 np.random.seed(0)

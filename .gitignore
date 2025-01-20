@@ -4,6 +4,6 @@ build
 __pycache__
 .pytest_cache
 *.log
-mnist/mnist-data
+mnist-data
 *.nsys-rep
 .pytest_cache

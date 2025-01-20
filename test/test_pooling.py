@@ -1,4 +1,4 @@
-import rivertensor as rt
+import rivertensor.base as rt
 import torch
 import torch.nn as nn
 import numpy as np

@@ -1,5 +1,5 @@
 import numpy as np
-import rivertensor as rt
+import rivertensor.base as rt
 import random
 
 random.seed(0)

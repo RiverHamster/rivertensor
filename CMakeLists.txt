@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
@@ -23,10 +24,10 @@ target_compile_options(tensor PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
                        --extended-lambda
                        >)
 
-pybind11_add_module(rivertensor_cpp src/pybind.cc src/tensor-numpy.cc)
-target_link_libraries(rivertensor_cpp PUBLIC tensor)
-target_include_directories(rivertensor_cpp PUBLIC include)
-install(TARGETS rivertensor_cpp DESTINATION rivertensor)
+pybind11_add_module(base src/pybind.cc src/tensor-numpy.cc)
+target_link_libraries(base PUBLIC tensor)
+target_include_directories(base PUBLIC include)
+install(TARGETS base DESTINATION rivertensor)
 
 # C++ test binary
 add_executable(tensor_test test/tensor_test.cc)
