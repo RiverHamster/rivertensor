@@ -28,8 +28,12 @@ pytest test
 
 ## Design
 The `rivertensor` (abbr. `rt`) package consists of two parts:
+
+C++ base library:
 - `rt.base`: a tensor library implemented in C++, featuring CPU/GPU memory
    management, arithmetic, matrix, CNN, pooling, softmax and cross-entropy layers.
+
+Python autodiff wrapper library:
 - `rt.Tensor`: a simple Python class implementing automatic differentiation, by
   building computational graph (CG) with overloaded operators. Currently only a very
   limited subset of operators are supported, and the gradients are directly
