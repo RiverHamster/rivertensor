@@ -16,7 +16,7 @@ data_dir = os.path.join(script_dir, 'mnist-data')
 batch_size = 32
 n_epoch = 10
 lr = 1e-2
-param_file = "net/mnist_conv_net.pkl"
+param_file = "net/mnist_net_conv.pkl"
 
 transform = v2.Compose([
     v2.ToImage(),
@@ -34,6 +34,7 @@ train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size,
 eval_loader = torch.utils.data.DataLoader(eval_set, batch_size=batch_size,
                                           shuffle=False)
 
+# Fully connected network structure
 class FCNet(rt.Net):
     def __init__(self):
         self.params = {
@@ -47,6 +48,7 @@ class FCNet(rt.Net):
         x = x @ self.params['w2']
         return x
 
+# CNN network structure
 class ConvNet(rt.Net):
     def __init__(self):
         self.params = {
@@ -69,6 +71,9 @@ class ConvNet(rt.Net):
         return x
 
 net = ConvNet()
+
+# uncomment the following lines to load the pretrained weights
+
 # with open(param_file, "rb") as f:
 #     net.load(f)
 optimizer = SGD(lr=lr)
@@ -89,16 +94,18 @@ for e in range(n_epoch):
             pbar.set_postfix_str(f'loss={running_loss / niter:.4f}')
             # print(loss)
             optimizer.step(net.params)
-    total = 0
-    correct = 0
-    for x, y in eval_loader:
-        x_rt = rt.tensor(x.numpy())
-        logits = net.forward(rt.tensor(x.numpy()))
-        logits = logits.numpy()
-        y_pred = np.argmax(logits, axis=1)
-        correct += np.sum(y_pred == y.numpy())
-        total += y.shape[0]
-    print(f'Eval acc: {correct / total:.4f}')
 
 # with open(param_file, "wb") as f:
 #     net.dump(f)
+
+total = 0
+correct = 0
+for x, y in eval_loader:
+    x_rt = rt.tensor(x.numpy())
+    logits = net.forward(rt.tensor(x.numpy()))
+    logits = logits.numpy()
+    y_pred = np.argmax(logits, axis=1)
+    correct += np.sum(y_pred == y.numpy())
+    total += y.shape[0]
+print(f'Eval acc: {correct / total:.4f}')
+

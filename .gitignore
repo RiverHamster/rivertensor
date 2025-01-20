@@ -7,3 +7,4 @@ __pycache__
 mnist-data
 *.nsys-rep
 .pytest_cache
+torch-task/data
