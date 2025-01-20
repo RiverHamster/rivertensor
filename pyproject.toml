@@ -15,6 +15,3 @@ filterwarnings = [
   "ignore::pytest.PytestCacheWarning",
 ]
 testpaths = ["test"]
-
-[tool.scikit-build]
-editable.rebuild = true
