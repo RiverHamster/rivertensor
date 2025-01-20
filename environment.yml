@@ -6,10 +6,13 @@ dependencies:
   - numpy
   - pytorch
   - torchvision
+  - ca-certificates
+  - openssl
   - cuda
   - pybind11
   - pytest
   - scipy
   - pipx
   - scikit-build-core
+  - pybind11-stubgen
   - tqdm
